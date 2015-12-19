@@ -1,19 +1,34 @@
-var Parser = function(output) {
-  this.output = output;
-  this.console = $("#console");
-  this.context = document;
-};
+// Grabs the query strings and puts them into urlParams
+var urlParams;
 
-Parser.prototype = {
-  parse: function(code) {
-    try {
-      var old = player;
-      eval(code);
-      old.destroy();
-      window.player = player;
-      this.console.empty();
-    } catch(err) {
-      this.console.html(err.message);
+(function() {
+    window.onpopstate = function () {
+        var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+        urlParams = {};
+        while (match = search.exec(query))
+        urlParams[decode(match[1])] = decode(match[2]);
     }
-  }
-};
+    window.onpopstate();
+})();
+
+connectStr = 'http://164.76.124.33:1935/live/' + urlParams.streamName + '/playlist.m3u8';
+
+function loadFlashPlayer() {
+    var playerElement = document.getElementById("player-wrapper");
+
+    var player = new Clappr.Player({
+        source: connectStr,
+        poster: 'i/emu-logo.jpg',
+        height: 480,
+        width: 640,
+        mediacontrol: {seekbar: "#00870e", buttons: "#004709"},
+        autoPlay: true
+    });
+
+    player.attachTo(playerElement);
+}
