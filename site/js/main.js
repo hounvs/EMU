@@ -25,7 +25,7 @@ function loadPlayer() {
         source: connectStr,
         poster: 'images/emu-logo.jpg',
         height: 480,
-        width: 640,
+        width: 720,
         mediacontrol: {seekbar: "#00870e", buttons: "#004709"},
         autoPlay: true
     });
