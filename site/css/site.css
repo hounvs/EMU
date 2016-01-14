@@ -1,4 +1,8 @@
 hr {
     border-width: 5px;
-    border-color: #007728;
+    border-color: #006234;
+}
+
+.play {
+    color: #006234;
 }

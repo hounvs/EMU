@@ -16,7 +16,11 @@ var urlParams;
     window.onpopstate();
 })();
 
-connectStr = 'http://164.76.124.33:1935/live/' + urlParams.streamName + '/playlist.m3u8';
+if(urlParams.streamName) {   //if streamName has truthy value
+    connectStr = 'http://164.76.124.33:1935/live/' + urlParams.streamName + '/playlist.m3u8';
+} else if(urlParams.fileName) { //if fileName has truthy value
+    connectStr = 'http://164.76.124.33:1935/vod/mp4:' + urlParams.fileName + '/playlist.m3u8';
+}
 
 function loadPlayer() {
     var playerElement = document.getElementById("player-wrapper");
@@ -26,8 +30,8 @@ function loadPlayer() {
         poster: 'images/emu-logo.jpg',
         height: 480,
         width: 720,
-        mediacontrol: {seekbar: "#00870e", buttons: "#004709"},
-        autoPlay: true
+        mediacontrol: {seekbar: "#006234", buttons: "#006234"},
+        autoPlay: false
     });
 
     player.attachTo(playerElement);
