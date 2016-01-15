@@ -24,6 +24,7 @@ function loadPlayer() {
     var playerHeight = 480;
     var playerWidth = 720;
     var autoPlay = false;
+    var playbackNotSupportedMessage = 'There was an error. Please try again';
     
     if(urlParams.streamName) {   //if streamName has truthy value
         connectionString = 'http://164.76.124.33:1935/live/' + urlParams.streamName + '/playlist.m3u8';
@@ -40,7 +41,8 @@ function loadPlayer() {
         height: playerHeight,
         width: playerWidth,
         mediacontrol: {seekbar: playerColor, buttons: playerColor},
-        autoPlay: autoPlay
+        autoPlay: autoPlay,
+        playbackNotSupportedMessage: playbackNotSupportedMessage
     });
 
     player.attachTo(playerElement);
