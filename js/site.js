@@ -31,7 +31,7 @@ function loadPlayer() {
         connectionString = 'http://164.76.124.33:1935/live/' + urlParams.streamName + '/playlist.m3u8';
         autoPlay = true;
     } else if(urlParams.fileName) { //if fileName has truthy value
-        connectionString = 'http://164.76.124.33:1935/vod/mp4:' + urlParams.fileName;
+        connectionString = 'http://164.76.124.33:1935/vod/mp4:' + urlParams.fileName + '/playlist.m3u8';
     }
     
     var playerElement = document.getElementById("player-wrapper");
