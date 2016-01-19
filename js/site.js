@@ -26,6 +26,7 @@ function loadPlayer() {
     var autoPlay = false;
     var playbackNotSupportedMessage = 'There was an error. Please try again';
     
+    // Check if stream name or file name are defined
     if(urlParams.streamName) {   //if streamName has truthy value
         connectionString = 'http://164.76.124.33:1935/live/' + urlParams.streamName + '/playlist.m3u8';
         autoPlay = true;
