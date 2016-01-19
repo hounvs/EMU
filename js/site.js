@@ -26,25 +26,31 @@ function loadPlayer() {
     var autoPlay = false;
     var playbackNotSupportedMessage = 'There was an error. Please try again';
     
-    // Check if stream name or file name are defined
-    if(urlParams.streamName) {   //if streamName has truthy value
-        connectionString = 'http://164.76.124.33:1935/live/' + urlParams.streamName + '/playlist.m3u8';
+    // Check if stream name or file path/name are defined
+    if(urlParams.stream) {   // if stream has truthy value
+        connectionString = 'http://164.76.124.33:1935/live/' + urlParams.stream + '/playlist.m3u8';
         autoPlay = true;
-    } else if(urlParams.fileName) { //if fileName has truthy value
-        connectionString = 'http://164.76.124.33:1935/vod/mp4:' + urlParams.fileName + '/playlist.m3u8';
+    } else if(urlParams.path && urlParams.file) { // if path and file have truthy values
+        connectionString = 'http://164.76.124.33:1935/' + urlParams.path + '/mp4:' + urlParams.file + '/playlist.m3u8';
     }
     
+    // Get player wrapper
     var playerElement = document.getElementById("player-wrapper");
-
-    var player = new Clappr.Player({
-        source: connectionString,
-        poster: posterImage,
-        height: playerHeight,
-        width: playerWidth,
-        mediacontrol: {seekbar: playerColor, buttons: playerColor},
-        autoPlay: autoPlay,
-        playbackNotSupportedMessage: playbackNotSupportedMessage
-    });
-
-    player.attachTo(playerElement);
+    
+    // if connectionStringhas truthy value, build/show the player
+    if(connectionString) {        
+        var player = new Clappr.Player({
+            source: connectionString,
+            poster: posterImage,
+            height: playerHeight,
+            width: playerWidth,
+            mediacontrol: {seekbar: playerColor, buttons: playerColor},
+            autoPlay: autoPlay,
+            playbackNotSupportedMessage: playbackNotSupportedMessage
+        });
+        
+        player.attachTo(playerElement);
+    } else {    // show the menu
+        playerElement.hide();
+    }
 }
