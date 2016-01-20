@@ -24,7 +24,6 @@ function loadPlayer() {
     var playerHeight = 480;
     var playerWidth = 720;
     var autoPlay = false;
-    var playbackNotSupportedMessage = 'There was an error. Please try again';
     
     // Check if stream name or file path/name are defined
     if(urlParams.stream) {   // if stream has truthy value
@@ -45,8 +44,7 @@ function loadPlayer() {
             height: playerHeight,
             width: playerWidth,
             mediacontrol: {seekbar: playerColor, buttons: playerColor},
-            autoPlay: autoPlay,
-            playbackNotSupportedMessage: playbackNotSupportedMessage
+            autoPlay: autoPlay
         });
         
         player.attachTo(playerElement);
