@@ -46,8 +46,7 @@ function loadPlayer() {
             width: playerWidth,
             mediacontrol: {seekbar: playerColor, buttons: playerColor},
             autoPlay: autoPlay,
-            playbackNotSupportedMessage: playbackNotSupportedMessage,
-            watermark: 'images/favicon.png', position: 'top-right'
+            playbackNotSupportedMessage: playbackNotSupportedMessage
         });
         
         player.attachTo(playerElement);
