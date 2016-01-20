@@ -52,6 +52,7 @@ function loadPlayer() {
         
         player.attachTo(playerElement);
     } else {    // show the menu
-        playerElement.hide();
+        // TODO: Add menu and hide playerElement
+        $(playerElement).hide();
     }
 }
