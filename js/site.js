@@ -36,8 +36,9 @@ function loadPlayer() {
     // Get player wrapper
     var playerElement = document.getElementById("player-wrapper");
     
-    // if connectionStringhas truthy value, build/show the player
-    if(connectionString) {        
+    // if connectionStringhas truthy value
+    if(connectionString) {
+        // Build the player
         var player = new Clappr.Player({
             source: connectionString,
             poster: posterImage,
@@ -47,6 +48,7 @@ function loadPlayer() {
             autoPlay: autoPlay
         });
         
+        // Populate player container
         player.attachTo(playerElement);
     } else {    // show the menu
         // TODO: Add menu and hide playerElement
