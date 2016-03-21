@@ -23,10 +23,14 @@
             
     		<!-- HEADER -->
             <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <img src="images/Header_emu-logo.png" />
+                <div class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
+                    <img src="images/emuCMTA-logo.png" width="250px" />
+        		</div>
+        		<div class="col-xs-6 col-sm-8 col-md-9 col-lg-9">
+                	<h2 id="header">This is a Test Title for this Stream</h2>
                 </div>
             </div>
+
     		<!-- END HEADER -->
             
             <hr>
@@ -37,7 +41,8 @@
                     <div id="player-wrapper" class="player"></div>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-3 col-lg-4">
-                	<h1 id="header">STREAM TITLE</h1>
+                    <!-- Side description (goes below player on small screens) -->
+                	<h2 id="description"></h2>
                 </div>
             </div>
             <!-- END PLAYER -->
@@ -52,7 +57,7 @@
         
         <!-- POPULATE PLAYER -->
         <script>
-            loadPlayer();
+            loadPlayer("");
         </script>
         <!-- END POPULATE PLAYER -->
     </body>
