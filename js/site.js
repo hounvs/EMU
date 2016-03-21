@@ -43,11 +43,15 @@ function loadPlayer(newPosterImage) {
         posterImage = 'images/emu-logo.jpg';
     }
 
-    // Get player wrapper
-    var playerElement = document.getElementById("player-wrapper");
+    // Get player and menu wrappers
+    var playerElement = document.getElementById("player");
 
     // if connectionStringhas truthy value
     if (connectionString) {
+        $(document.getElementById("header")).show();
+        $(document.getElementById("player-wrapper")).show();
+        $(document.getElementById("menu-wrapper")).hide();
+        
         // Build the player
         var player = new Clappr.Player({
             source: connectionString,
@@ -61,7 +65,14 @@ function loadPlayer(newPosterImage) {
         // Populate player container
         player.attachTo(playerElement);
     } else {    // show the menu
-        // TODO: Add menu and hide playerElement
-        $(playerElement).hide();
+        $(document.getElementById("header")).hide();
+        $(document.getElementById("player-wrapper")).hide();
+        $(document.getElementById("menu-wrapper")).show();
     }
+}
+
+function goToStream() {
+    var oldURL = window.location.href;
+    var newURL = oldURL + "?stream=" + $('#stream').value;
+    window.location.href = newURL;
 }
