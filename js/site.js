@@ -72,7 +72,15 @@ function loadPlayer(newPosterImage) {
 }
 
 function goToStream() {
+    // http://164.76.124.68/stream/index.html?stream=test
     var oldURL = window.location.href;
-    var newURL = oldURL + "?stream=" + $('#stream').value;
+    var newURL = oldURL + "?stream=" + $('#stream').val();
+    window.location.href = newURL;
+}
+
+function goToVOD() {
+    // http://164.76.124.68/stream/index.html?path=vod&file=sample
+    var oldURL = window.location.href;
+    var newURL = oldURL + "?path=" + $('#path').val() + "&file=" + $('#file').val();
     window.location.href = newURL;
 }
