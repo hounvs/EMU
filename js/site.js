@@ -22,7 +22,7 @@ var urlParams;
 function loadPlayer(newPosterImage) {
     // Defaults
     var connectionString = '';
-    var posterImage = newPosterImage;
+    var posterImage = 'images/emu-logo.jpg';
     var playerColor = "#006234";
     var playerHeight = 480;
     var playerWidth = 720;
@@ -38,9 +38,11 @@ function loadPlayer(newPosterImage) {
         connectionString = 'http://164.76.124.33:1935/' + urlParams.path + '/mp4:' + urlParams.file + '/playlist.m3u8';
     }
     
-    // If posterImage didn't get a valid value, assign default
-    if(!posterImage) {
-        posterImage = 'images/emu-logo.jpg';
+    // If poster image is set in HTML or URL, overwrite default
+    if(newPosterImage) {
+        posterImage = newPosterImage;
+    } else if(urlParams.poster) {
+        posterImage = urlParams.poster;
     }
     
     // If title is set in ULR, change title
@@ -87,6 +89,7 @@ function parseMenu() {
         "&desc=" + encodeURIComponent($("#description-text").val()) +
         "&stream=" + encodeURIComponent($('#stream').val()) +
         "&path=" + encodeURIComponent($('#path').val()) +
-        "&file=" + encodeURIComponent($('#file').val())
+        "&file=" + encodeURIComponent($('#file').val()) +
+        "&poster=" + encodeURIComponent($('#poster-image').val())
     );
 }
