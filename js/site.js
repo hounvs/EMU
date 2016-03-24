@@ -42,6 +42,16 @@ function loadPlayer(newPosterImage) {
     if(!posterImage) {
         posterImage = 'images/emu-logo.jpg';
     }
+    
+    // If title is set in ULR, change title
+    if(urlParams.title) {
+        $(document.getElementById("title")).html(urlParams.title);
+    }
+    
+    // If description is set in URL, change description
+    if(urlParams.desc){
+        $(document.getElementById("description")).html(urlParams.desc);
+    }
 
     // Get player and menu wrappers
     var playerElement = document.getElementById("player");
@@ -71,16 +81,12 @@ function loadPlayer(newPosterImage) {
     }
 }
 
-function goToStream() {
-    // http://164.76.124.68/stream/index.html?stream=test
-    var oldURL = window.location.href;
-    var newURL = oldURL + "?stream=" + $('#stream').val();
-    window.location.href = newURL;
-}
-
-function goToVOD() {
-    // http://164.76.124.68/stream/index.html?path=vod&file=sample
-    var oldURL = window.location.href;
-    var newURL = oldURL + "?path=" + $('#path').val() + "&file=" + $('#file').val();
-    window.location.href = newURL;
+function parseMenu() {
+    $("#queryString").val(
+        "?title=" + encodeURIComponent($("#title-text").val()) +
+        "&desc=" + encodeURIComponent($("#description-text").val()) +
+        "&stream=" + encodeURIComponent($('#stream').val()) +
+        "&path=" + encodeURIComponent($('#path').val()) +
+        "&file=" + encodeURIComponent($('#file').val())
+    );
 }
