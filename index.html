@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!-- 
+    TITLE HEADER is where the title of the page is located
+    DESCRIPTION is where the side description is located
+    POPULATE PLAYER is where you define a custom poster image
+ -->
 <html lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -12,7 +17,7 @@
         <script type="text/javascript" charset="utf-8" src="js/clipboard.min.js"></script>
         <script type="text/javascript" charset="utf-8" src="js/site.js"></script>
         
-        <!-- SET FAVICON -->
+        <!-- SET FAVICON (icon on the browser's tab) -->
         <link rel="shortcut icon" type="image/png" href="images/favicon.png">
         <!-- SET TEXT ON TAB -->
         <title>EMU Livestream</title>
@@ -23,33 +28,35 @@
             
             <hr/>
             
-    		<!-- TITLE HEADER -->
+<!-- TITLE HEADER -->
             <div class="row">
                 <div class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-                    <img src="images/emuCMTA-logo.png" width="250px" />
+                    <img src="images/Header_emu-logo.png" width="250px" />
         		</div>
         		<div class="col-xs-6 col-sm-8 col-md-9 col-lg-9">
-                	<h2 id="title">Test Title</h2>
+                    <!-- Title at the top of the page -->
+                	<h2 id="title"></h2>
                 </div>
             </div>
-
-    		<!-- END TITLE HEADER -->
+<!-- END TITLE HEADER -->
             
             <hr/>
             
-            <!-- PLAYER -->
+<!-- PLAYER -->
             <div id="player-wrapper" class="row">
                 <div class="col-xs-12 col-sm-12 col-md-9 col-lg-8">
                     <div id="player" class="player"></div>
                 </div>
+<!-- DESCRIPTION -->
                 <div class="col-xs-12 col-sm-12 col-md-3 col-lg-4">
                     <!-- Side description (goes below player on small screens) -->
                 	<h2 id="description"></h2>
                 </div>
+<!-- END DESCRIPTION -->
             </div>
-            <!-- END PLAYER -->
+<!-- END PLAYER -->
             
-            <!-- MENU -->
+<!-- MENU -->
             <div id="menu-wrapper" class="form-horizontal">
                 <div class="form-group">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -115,26 +122,30 @@
                     </div>
                 </div>
             </div>
-            <!-- END MENU -->
+<!-- END MENU -->
             
             <hr/>
             
-    		<!-- FOOTER -->
-        	<img src="images/icon-company.png" height="35" />
-            <p>2015 Wowza Media Systems, LLC. All rights reserved.</p>
-    		<!-- END FOOTER -->
+<!-- FOOTER -->
+        	<img src="images/emuCMTA-logo.png" height="35" />
+            <p>EMFS Streaming Services</p>
+<!-- END FOOTER -->
         </div>
         
-        <!-- POPULATE PLAYER -->
+<!-- POPULATE PLAYER -->
         <script>
+            // DEFAULT POSTER
             // loadPlayer("");
+            
+            // CUSTOM POSTER
             // loadPlayer("images/emu-logo.jpg");
+            
             loadPlayer("");
             
             // Assign clipboard button in menu
             var btn = document.getElementById('clipboard');
             var clipboard = new Clipboard(btn);
         </script>
-        <!-- END POPULATE PLAYER -->
+<!-- END POPULATE PLAYER -->
     </body>
 </html>

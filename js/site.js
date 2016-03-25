@@ -47,12 +47,12 @@ function loadPlayer(newPosterImage) {
     
     // If title is set in ULR, change title
     if(urlParams.title) {
-        $(document.getElementById("title")).html(urlParams.title);
+        $(document.getElementById("title")).html(decodeURIComponent(urlParams.title));
     }
     
     // If description is set in URL, change description
     if(urlParams.desc){
-        $(document.getElementById("description")).html(urlParams.desc);
+        $(document.getElementById("description")).html(decodeURIComponent(urlParams.desc));
     }
 
     // Get player and menu wrappers
@@ -83,6 +83,7 @@ function loadPlayer(newPosterImage) {
     }
 }
 
+// Parse the menu to create the query string (must encode characters from menu input as URL-friendly)
 function parseMenu() {
     $("#queryString").val(
         "?title=" + encodeURIComponent($("#title-text").val()) +
