@@ -20,7 +20,7 @@ var urlParams;
 }());
 
 function loadPlayer(newPosterImage) {
-    // Defaults
+    // Defaults for the player
     var connectionString = '';
     var posterImage = 'images/emu-logo.jpg';
     var playerColor = "#006234";
@@ -32,7 +32,6 @@ function loadPlayer(newPosterImage) {
     if (urlParams.stream) {   // if stream has truthy value
         // http://164.76.124.68/stream/index.html?stream=test
         connectionString = 'http://164.76.124.33:1935/live/' + urlParams.stream + '/playlist.m3u8';
-        autoPlay = true;
     } else if (urlParams.path && urlParams.file) { // if path and file have truthy values
         // http://164.76.124.68/stream/index.html?path=vod&file=sample
         connectionString = 'http://164.76.124.33:1935/' + urlParams.path + '/mp4:' + urlParams.file + '/playlist.m3u8';
