@@ -1,0 +1,84 @@
+<div class="form-group">
+    <!-- TITLE MENU FIELD -->
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="input-group">
+            <span class="input-group-addon">Title</span>
+            <input type="text" class="form-control" placeholder="Title of Stream" id="title-text">
+        </div>
+    </div>
+    <!-- END TITLE MENU FIELD -->
+</div>
+<div class="form-group">
+    <!-- DESCRIPTION MENU FIELD -->
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="input-group">
+            <span class="input-group-addon">Description</span>
+            <textarea class="form-control" rows="1" id="description-text"></textarea>
+        </div>
+    </div>
+    <!-- END DESCRIPTION MENU FIELD -->
+</div>
+<div class="form-group">
+    <!-- POSTER IMAGE MENU FIELD -->
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="input-group">
+            <span class="input-group-addon">Poster Image</span>
+            <input type="text" class="form-control" placeholder="images/emu-logo.jpg" id="poster-image">
+        </div>
+    </div>
+    <!-- END POSTER IMAGE MENU FIELD -->
+</div>
+<div class="form-group">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="input-group">
+            <span class="input-group-addon">Stream</span>
+            <input type="text" class="form-control" placeholder="commencement" id="stream">
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <!-- PATH MENU FIELD -->
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <div class="input-group">
+            <span class="input-group-addon">Path</span>
+            <input type="text" class="form-control" placeholder="VOD" id="path">
+        </div>
+    </div>
+    <!-- END PATH MENU FIELD -->
+    <!-- FILE NAME MENU FIELD -->
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+        <div class="input-group">
+            <span class="input-group-addon">File</span>
+            <input type="text" class="form-control" placeholder="sample" id="file">
+        </div>
+    </div>
+    <!-- END FILE NAME MENU FIELD -->
+</div>
+<div class="form-group">
+    <!-- QUERY STRING GENERATOR -->
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <span class="input-group">
+            <!-- Button to generate query string -->
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-success" onclick="parseMenu()">
+                    Generate Query String
+                </button>
+            </span>
+            <!-- Text field where generated query string is placed -->
+            <input type="text" id="queryString" class="form-control">
+            <!-- Button to copy generated query string to clipboard -->
+            <span class="input-group-btn">
+                <button type="button" id="clipboard" class="btn btn-success" data-clipboard-target="#queryString">
+                    <img src="images/clippy.svg" width="13" alt="Copy to clipboard">
+                </button>
+            </span>
+        </span>
+    </div>
+    <!-- END QUERY STRING GENERATOR -->
+</div>
+
+<script>
+    // Assign clipboard button in menu
+    var btn = document.getElementById('clipboard');
+    var clipboard = new Clipboard(btn);
+</script>

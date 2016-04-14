@@ -19,7 +19,30 @@ var urlParams;
     window.onpopstate();
 }());
 
-function loadPlayer(newPosterImage) {
+// Loads the VOD Menu, Query String Generator, or Player based on URL
+function populatePage(newPosterImage) {
+    // If title is set in URL, change title
+    if(urlParams.title) {
+        $(document.getElementById("title")).html(decodeURIComponent(urlParams.title));
+    }
+    
+    // If description is set in URL, change description
+    if(urlParams.desc) {
+        $(document.getElementById("description")).html(decodeURIComponent(urlParams.desc));
+    }
+    
+    if (urlParams.stream) {   // if stream has truthy value
+        loadPlayer(newPosterImage, false)
+    } else if(urlParams.path && urlParams.file) { // if path and file have truthy values
+        loadPlayer(newPosterImage, true);
+    } else if(urlParams.query) {    // if query has truthy value
+        $("#query-string-generator-wrapper").load("queryStringGenerator.html");
+    } else {
+        $("#VOD-menu-wrapper").load("VODMenu.html");
+    }
+}
+
+function loadPlayer(newPosterImage, isVOD) {
     // Defaults for the player
     var connectionString = '';
     var posterImage = 'images/emu-logo.jpg';
@@ -27,15 +50,15 @@ function loadPlayer(newPosterImage) {
     var playerHeight = 480;
     var playerWidth = 720;
     var autoPlay = false;
-
-    // Check if stream name or file path/name are defined
-    if (urlParams.stream) {   // if stream has truthy value
+    
+    // Set connectionString based on if it is a VOD or Livestream
+    if (isVOD) {
+        // http://164.76.124.68/stream/index.html?path=vod&file=sample
+        connectionString = 'http://164.76.124.33:1935/' + urlParams.path + '/mp4:' + urlParams.file + '/playlist.m3u8';
+    } else {   // if stream has truthy value
         // http://164.76.124.68/stream/index.html?stream=test
         connectionString = 'http://164.76.124.33:1935/live/' + urlParams.stream + '/playlist.m3u8';
         autoPlay = true;
-    } else if (urlParams.path && urlParams.file) { // if path and file have truthy values
-        // http://164.76.124.68/stream/index.html?path=vod&file=sample
-        connectionString = 'http://164.76.124.33:1935/' + urlParams.path + '/mp4:' + urlParams.file + '/playlist.m3u8';
     }
     
     // If poster image is set in HTML or URL, overwrite default
@@ -45,42 +68,21 @@ function loadPlayer(newPosterImage) {
         posterImage = urlParams.poster;
     }
     
-    // If title is set in ULR, change title
-    if(urlParams.title) {
-        $(document.getElementById("title")).html(decodeURIComponent(urlParams.title));
-    }
-    
-    // If description is set in URL, change description
-    if(urlParams.desc){
-        $(document.getElementById("description")).html(decodeURIComponent(urlParams.desc));
-    }
-
     // Get player and menu wrappers
     var playerElement = document.getElementById("player");
+    
+    // Build the player
+    var player = new Clappr.Player({
+        source: connectionString,
+        poster: posterImage,
+        height: playerHeight,
+        width: playerWidth,
+        mediacontrol: {seekbar: playerColor, buttons: playerColor},
+        autoPlay: autoPlay
+    });
 
-    // if connectionStringhas truthy value
-    if (connectionString) {
-        $(document.getElementById("header")).show();
-        $(document.getElementById("player-wrapper")).show();
-        $(document.getElementById("menu-wrapper")).hide();
-        
-        // Build the player
-        var player = new Clappr.Player({
-            source: connectionString,
-            poster: posterImage,
-            height: playerHeight,
-            width: playerWidth,
-            mediacontrol: {seekbar: playerColor, buttons: playerColor},
-            autoPlay: autoPlay
-        });
-
-        // Populate player container
-        player.attachTo(playerElement);
-    } else {    // show the menu
-        $(document.getElementById("header")).hide();
-        $(document.getElementById("player-wrapper")).hide();
-        $(document.getElementById("menu-wrapper")).show();
-    }
+    // Populate player container
+    player.attachTo(playerElement);
 }
 
 // Parse the menu to create the query string (must encode characters from menu input as URL-friendly)
