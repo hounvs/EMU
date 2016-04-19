@@ -31,21 +31,22 @@ function populatePage(newPosterImage) {
         $(document.getElementById("description")).html(decodeURIComponent(urlParams.desc));
     }
     
-    if (urlParams.stream) {   // if stream has truthy value
+    if (urlParams.stream) {   // if stream has truthy value, load player with live stream
         loadPlayer(newPosterImage, false)
-    } else if(urlParams.path && urlParams.file) { // if path and file have truthy values
+    } else if(urlParams.path && urlParams.file) { // if path and file have truthy values, load player with VOD
         loadPlayer(newPosterImage, true);
-    } else if(urlParams.query) {    // if query has truthy value
+    } else if(urlParams.query) {    // if query has truthy value, load Query String Generator
         $("#query-string-generator-wrapper").load("queryStringGenerator.html");
-    } else {
+    } else {    // otherwise load the VOD menu
         $("#VOD-menu-wrapper").load("VODMenu.html");
     }
 }
 
+// create the player and put it into the page
 function loadPlayer(newPosterImage, isVOD) {
     // Defaults for the player
     var connectionString = '';
-    var posterImage = 'images/emu-logo.jpg';
+    var posterImage = 'images/posters/emu-logo.jpg';
     var playerColor = "#006234";
     var playerHeight = 480;
     var playerWidth = 720;
@@ -62,10 +63,10 @@ function loadPlayer(newPosterImage, isVOD) {
     }
     
     // If poster image is set in HTML or URL, overwrite default
-    if(newPosterImage) {
+    if(newPosterImage) {    // HTML check
         posterImage = newPosterImage;
-    } else if(urlParams.poster) {
-        posterImage = urlParams.poster;
+    } else if(urlParams.poster) {   // URL check
+        posterImage = "images/posters/" + urlParams.poster;
     }
     
     // Get player and menu wrappers
