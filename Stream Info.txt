@@ -1,0 +1,50 @@
+Flash Media Live Encoder:
+    Video:
+        Device: <choose video input>
+        Format: H.264
+        Frame Rate: 15.00
+        Input Size: 720x480
+        Bit Rate: 400
+        Output Size: 720x480
+    Audio:
+        Device: Second 2 channels
+        Format: AAC
+        Channels: Mono
+        Sample Rate: 32000
+        Bit Rate: 48
+    Stream to Flash Media Server:
+        FMS URL: rtmp://164.76.124.33:1935/live
+        Stream: <choose stream name>
+    Authentication:
+        It will prompt you to enter a username and password when attempting to publish
+        username: <REDACTED>
+        password: <REDACTED>
+        
+To add pre-encoded content:
+    -Connect to streaming server
+    -In finder go to /Macintosh HD/Library/WowzaMediaServer-3.6.3/WowzaMediaServer/content/
+    -Any file placed here will be accessible by connecting to rtsp://164.76.124.33:1935/vod/mp4:<filename>.mp4/
+
+To add a new webpage:
+    -Connect to webserver
+    -In finder go to /Macintosh HD/Library/Webserver/Documents/
+    -Any file placed here will be accessible by connecting to 164.76.124.68/<file directory>
+    -Current livestream pages are under /Macintosh HD/Library/Webserver/Documents/live
+    -Current video on demand pages are under /Macintosh HD/Library/Webserver/Documents/vod
+
+Wowza:
+    Wowza Directory:
+        /Server HD/Applications/WowzaMediaServer-3.6.3/
+    Startup:
+        Run /Server HD/Applications/WowzaMediaServer-3.6.3/Wowza Startup
+    Shutdown:
+        Run /Server HD/Applications/WowzaMediaServer-3.6.3/Wowza Shutdown
+    Settings Folder:
+        /Server HD/Applications/WowzaMediaServer-3.6.3/WowzaMediaServer/conf/
+        /Application.xml
+    Password (stored in plain text):
+        /Server HD/Applications/WowzaMediaServer-3.6.3/WowzaMediaServer/conf/publish.password
+    Webpage Templates:
+        /Server HD/Applications/WowzaMediaServer-3.6.3/WowzaMediaServer/applications/<desired page type>
+        
+The current webpage is under /Macintosh HD/Library/Webserver/Documents/live/

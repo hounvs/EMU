@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--LIVE-->
+<!--LIVE-->
+<!--LIVE-->
+<!--LIVE-->
+<local:Player xmlns:fx="http://ns.adobe.com/mxml/2009"
+			  xmlns:s="library://ns.adobe.com/flex/spark"
+			  xmlns:mx="library://ns.adobe.com/flex/mx"
+			  xmlns:local="*"
+			  xmlns:samples="org.osmf.samples.*"
+			  width="540" height="360" backgroundAlpha="0.0" backgroundColor="#FFFFFF"
+			  creationComplete="init()" styleName="app">
+	
+	<mx:Canvas id="backdrop" x="0" y="0" width="100%" height="525" backgroundAlpha="0"
+				backgroundColor="#000000" contentBackgroundAlpha="1.0">
+		<mx:Text id="playerVersion" x="0" y="10" width="243" height="18" color="#000000"
+				fontSize="10" textAlign="left" visible="false" />
+		<s:TextArea id="videoFrame" x="0" y="28" width="540" height="360"
+				contentBackgroundAlpha="0.0"/>
+		<s:Label id="videoBackground" visible="true" x="0" y="28" width="540" height="360"
+				backgroundAlpha="1.0" backgroundColor="#000000" chromeColor="#090808"/>
+		<samples:MediaContainerUIComponent id="videoContainer" visible="true" x="0" y="28" width="540"
+				height="360" includeInLayout="true"/>
+		<mx:SWFLoader id="loadIcon" x="225" y="150" visible="true" source="@Embed(source='assets/loading/loading11.swf')"
+				height="100" width="100"/>
+
+		<mx:FormItem x="0" y="381" width="540" height="125" paddingLeft="0" paddingBottom="0" paddingTop="0" horizontalAlign="left" horizontalGap="0"
+					 indicatorGap="0">
+			<s:HGroup y="9" width="540" height="35" gap="6" horizontalAlign="left">
+				<mx:Button id="connectButton" width="79" label="Connect"/>
+				<mx:TextInput id="connectStr" width="0" visible="false"/>
+				<s:Label width="75" height="41" paddingBottom="15" text="Volume"/>
+				<mx:HSlider id="volumeLevel" y="-3" width="224" height="3" enabled="{isConnected}"
+							labelOffset="0" labels="" maximum="1" value=".5"/>
+				<s:Label width="70" height="27"/>
+				<mx:Button id="doFullscreen" visible="true" width="23"
+						   icon="@Embed(source='assets/fullscreen.png')" enabled="{isConnected}"/>
+			</s:HGroup>
+			<s:HGroup x="12" y="34" width="540" height="29" verticalAlign="middle" horizontalAlign="left" >
+				
+			</s:HGroup>
+			<s:HGroup x="10" y="71" width="540" height="32" verticalAlign="middle">
+				<mx:Text width="0" height="0" styleName="bold" text="Status:" textAlign="right"/>
+				<mx:Text id="prompt" width="0" height="0" color="#000000" textAlign="left"/>
+			</s:HGroup>
+		</mx:FormItem>
+
+	</mx:Canvas>
+	<fx:Style>
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		.app
+		{
+			backgroundColor:#000000;
+			backgroundAlpha:0;
+			
+		}
+		.bold
+		{
+			font-weight:bold;
+		}
+		global
+		{
+			vertical-align: middle;
+			text-align: right;
+		}
+	</fx:Style>
+</local:Player>

@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Commencement 2013 - Live Streaming</title>
+
+    <script language="javascript">AC_FL_RunContent = 0;</script>
+    <script src="AC_RunActiveContent.js" language="javascript"></script>	
+    <!-- Framework CSS -->
+	<link rel="stylesheet" href="css/screen.css" type="text/css" media="screen, projection">
+	<link rel="stylesheet" href="css/wowza.css" type="text/css" />
+    <script>
+        function supports_hls_video()
+        {
+            if (videoObj.canPlayType)
+            {
+                if (videoObj.canPlayType('application/x-mpegURL'))
+                {
+                    if(videoObj.canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"') )
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+		<!-- HEADER -->
+        <div class="span-18">
+            <h1>Winter Commencement 2013</h1>
+            <h2>Live Streaming </h2>
+      </div>
+        <div class="span-6 last">
+            <img src="img/Header_emu-logo.png" class="logo" width="227" height="84"/>
+      </div>
+        <hr class="heading">
+		<!-- END HEADER -->
+		<!-- EXAMPLE PLAYER: WIDTH of this player should be 630px, height(354) will vary depending on the example-->
+        <div class="span-16">
+            <div id="notsupported">
+                <br/>
+                <br/>
+                <br/>
+                
+                <center><h2><b>HTML5 or HLS are not supported in this browser.<br>Please click <a href="FlashHTTPPlayer/Winterflashplayer.html">HERE</a> for a supported stream.</b></h2>
+                </center>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+            <div id="supported">
+                <div>
+                    <style>
+                        video {
+                            background-color: #000000;
+                        }
+                        </style>
+                    <video id="videoObj" x-webkit-airplay="allow" controls alt="Example File" width="630" height="480"  onerror="failed(event)" oncanplay="canPlay()"/>
+                </div>
+                <table>
+                    <tr>
+                        <td>
+                            <button id="playObj" type="button" style="width:60px" onClick="JavaScript:playControl()" disabled="disabled">Pause</button>
+                        </td>
+                        <td/>
+                    </tr>
+                    <tr>
+                        <td align="right">
+                            <b>Stream:</b>
+                        </td>
+                        <td>
+                            <input id="connectStr" size = "80" type="text" placeholder="" value="http://164.76.124.33:1935/live/test/playlist.m3u8"/>
+                            <button id="connectObj" type="button" style="width:80px" onClick="JavaScript:connect()">Connect</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right">
+                            <b>Status:</b>
+                        </td>
+                        <td>
+                            <lable id="statusStr" size = "100" type="text" placeholder="" value=""/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        <script>
+            if ( supports_hls_video() ) {
+                notsupported.style.display="none";
+            }
+            else {
+                supported.style.display="none";
+                videoObj.style.display="none";
+            }
+            function connect()
+            {
+                if(connectObj.textContent == "Disconnect") {
+                    connectObj.textContent = "Connect";
+                    playObj.disabled = "disabled";
+                    playObj.textContent = 'Pause';
+                    videoObj.pause();
+                    videoObj.src=null;
+                    videoObj.load();
+                    statusStr.textContent = "";
+                }
+                else {
+                    connectObj.textContent = "Disconnect";
+                    playObj.disabled = "";
+                    statusStr.textContent = "";
+                    videoObj.src = connectStr.value;
+                    videoObj.load();
+                }
+            }
+            function canPlay()
+            {
+                playControl();
+            }
+            function playControl() {
+                if (videoObj.paused == false) {
+                    videoObj.pause();
+                    playObj.textContent = 'Play';
+                } 
+                else {
+                    videoObj.play();
+                    statusStr.textContent="Playing";
+                    playObj.textContent = 'Pause';
+                }
+            }
+            function failed(e) {
+                // video playback failed - show a message saying why
+                switch (e.target.error.code) {
+                    case e.target.error.MEDIA_ERR_ABORTED:
+                    statusStr.textContent='You aborted the video playback.';
+                    break;
+                    case e.target.error.MEDIA_ERR_NETWORK:
+                    statusStr.textContent='A network error caused the video download to fail part-way.';
+                    break;
+                    case e.target.error.MEDIA_ERR_DECODE:
+                    statusStr.textContent='The video playback was aborted due to a corruption problem or because the video used features your browser did not support.';
+                    break;
+                    case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                    statusStr.textContent= 'The video could not be loaded, either because the server or network failed or because the format is not supported.';
+                    break;
+                    default:
+                    statusStr.textContent = 'An unknown error occurred.';
+                    break;
+                }
+            }
+            </script>
+            
+        </div>
+		<!-- SIDEBAR --><h3>To play on an iOS device</h3>
+            <h3><a href="http://164.76.124.33:1935/live/test/playlist.m3u8">Click Here!</a></h3>
+<!-- FOOTER -->
+      <div class="span-24">
+            <hr class="heading">
+            <div class="span-1">
+            	<img src="img/icon-company.png" width="34" height="35" />
+            </div>
+            <div class="span-23 last copyright">
+                &nbsp;&#169;&nbsp;2013 Wowza Media Systems, LLC. All rights reserved.
+            </div>
+        </div>
+		<!-- END FOOTER -->
+	</div>
+</body>
+</html>
