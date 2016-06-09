@@ -6,6 +6,7 @@ import {uniqueId, currentScriptUrl} from 'base/utils'
 
 import BaseObject from 'base/base_object'
 import Events from 'base/events'
+import Browser from 'components/browser'
 import CoreFactory from 'components/core_factory'
 import Loader from 'components/loader'
 import PlayerInfo from 'components/player_info'
@@ -52,6 +53,17 @@ export default class Player extends BaseObject {
     return this.core.mediaControl.container.ended
   }
 
+  /**
+   * Determine if the playback is having to buffer in order for
+   * playback to be smooth.
+   * (i.e if a live stream is playing smoothly, this will be false)
+   * @property buffering
+   * @type Boolean
+   */
+  get buffering() {
+    return this.core.mediaControl.container.buffering
+  }
+
   /*
    * determine if the player is ready.
    * @property isReady
@@ -59,6 +71,26 @@ export default class Player extends BaseObject {
    */
   get isReady() {
     return !!this.ready
+  }
+
+  /**
+   * An events map that allows the user to add custom callbacks in player's options.
+   * @property eventsMapping
+   * @type {Object}
+   */
+  get eventsMapping() {
+    return {
+      onReady: Events.PLAYER_READY,
+      onResize: Events.PLAYER_RESIZE,
+      onPlay: Events.PLAYER_PLAY,
+      onPause: Events.PLAYER_PAUSE,
+      onStop: Events.PLAYER_STOP,
+      onEnded: Events.PLAYER_ENDED,
+      onSeek: Events.PLAYER_SEEK,
+      onError: Events.PLAYER_ERROR,
+      onTimeUpdate: Events.PLAYER_TIMEUPDATE,
+      onVolumeUpdate: Events.PLAYER_VOLUMEUPDATE
+    }
   }
 
   /**
@@ -91,6 +123,10 @@ export default class Player extends BaseObject {
    * automatically replay after it ends **default**: `false`
    * @param {Boolean} [options.chromeless]
    * player acts in chromeless mode **default**: `false`
+   * @param {Boolean} [options.allowUserInteraction]
+   * whether or not the player should handle click events when in chromeless mode **default**: `false` on desktops browsers, `true` on mobile.
+   * @param {Boolean} [options.disableKeyboardShortcuts]
+   * disable keyboard shortcuts. **default**: `false`. `true` if `allowUserInteraction` is `false`.
    * @param {Boolean} [options.muted]
    * start the video muted **default**: `false`
    * @param {String} [options.mimeType]
@@ -117,10 +153,14 @@ export default class Player extends BaseObject {
    * when embedded with width less than 320, volume bar will hide. You can force this behavior for all sizes by adding `true` **default**: `false`
    * @param {String} [options.watermark]
    * put `watermark: 'http://url/img.png'` on your embed parameters to automatically add watermark on your video. You can customize corner position by defining position parameter. Positions can be `bottom-left`, `bottom-right`, `top-left` and `top-right`.
+   * @param {String} [options.watermarkLink]
+   * `watermarkLink: 'http://example.net/'` - define URL to open when the watermark is clicked. If not provided watermark will not be clickable.
    * @param {Boolean} [options.disableVideoTagContextMenu]
    * disables the context menu (right click) on the video element if a HTML5Video playback is used.
    * @param {Boolean} [options.autoSeekFromUrl]
    * Automatically seek to the seconds provided in the url (e.g example.com?t=100) **default**: `true`
+   * @param {Boolean} [options.exitFullscreenOnEnd]
+   * Automatically exit full screen when the media finishes. **default**: `true`
    * @param {String} [options.poster]
    * define a poster by adding its address `poster: 'http://url/img.png'`. It will appear after video embed, disappear on play and go back when user stops the video.
    * @param {String} [options.playbackNotSupportedMessage]
@@ -131,9 +171,17 @@ export default class Player extends BaseObject {
    */
   constructor(options) {
     super(options)
-    var defaultOptions = {playerId: uniqueId(""), persistConfig: true, width: 640, height: 360, baseUrl: baseUrl}
+    var defaultOptions = {playerId: uniqueId(""), persistConfig: true, width: 640, height: 360, baseUrl: baseUrl, allowUserInteraction: Browser.isMobile}
     this.options = $.extend(defaultOptions, options)
     this.options.sources = this.normalizeSources(options)
+    if (!this.options.chromeless) {
+      // "allowUserInteraction" cannot be false if not in chromeless mode.
+      this.options.allowUserInteraction = true
+    }
+    if (!this.options.allowUserInteraction) {
+      // if user iteraction is not allowed ensure keyboard shortcuts are disabled
+      this.options.disableKeyboardShortcuts = true
+    }
     this.registerOptionEventListeners()
     this.coreFactory = new CoreFactory(this)
     this.playerInfo = PlayerInfo.getInstance(this.options.playerId)
@@ -177,6 +225,7 @@ export default class Player extends BaseObject {
       this.onReady()
     }
     this.listenTo(this.core.mediaControl, Events.MEDIACONTROL_CONTAINERCHANGED, this.containerChanged)
+    this.listenTo(this.core, Events.CORE_FULLSCREEN, this.onFullscreenChange)
   }
 
   addContainerEventListeners() {
@@ -194,26 +243,13 @@ export default class Player extends BaseObject {
   }
 
   registerOptionEventListeners() {
-    var eventsMapping = {
-      "onReady": Events.PLAYER_READY,
-      "onResize": Events.PLAYER_RESIZE,
-      "onPlay": Events.PLAYER_PLAY,
-      "onPause": Events.PLAYER_PAUSE,
-      "onStop": Events.PLAYER_STOP,
-      "onEnded": Events.PLAYER_ENDED,
-      "onSeek": Events.PLAYER_SEEK,
-      "onError": Events.PLAYER_ERROR,
-      "onTimeUpdate": Events.PLAYER_TIMEUPDATE,
-      "onVolumeUpdate": Events.PLAYER_VOLUMEUPDATE
-    }
     var userEvents = this.options.events || {}
-
     Object.keys(userEvents).forEach((userEvent) => {
-      var eventType = eventsMapping[userEvent]
+      var eventType = this.eventsMapping[userEvent]
       if (eventType) {
         var eventFunction = userEvents[userEvent]
         eventFunction = typeof eventFunction === "function" && eventFunction
-        eventFunction && this.listenTo(this, eventType, eventFunction)
+        eventFunction && this.on(eventType, eventFunction)
       }
     })
   }
@@ -227,6 +263,10 @@ export default class Player extends BaseObject {
     this.ready = true
     this.addContainerEventListeners()
     this.trigger(Events.PLAYER_READY)
+  }
+
+  onFullscreenChange(fullscreen) {
+    this.trigger(Events.PLAYER_FULLSCREEN, fullscreen)
   }
 
   onVolumeUpdate(volume) {
@@ -423,6 +463,17 @@ export default class Player extends BaseObject {
    */
   getCurrentTime() {
     return this.core.mediaControl.container.getCurrentTime()
+  }
+
+  /**
+   * The time that "0" now represents relative to when playback started.
+   * For a stream with a sliding window this will increase as content is
+   * removed from the beginning.
+   * @method getStartTimeOffset
+   * @return {Number} time (in seconds) that time "0" represents.
+   */
+  getStartTimeOffset() {
+   return this.core.mediaControl.container.getStartTimeOffset()
   }
 
   /**

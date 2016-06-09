@@ -51,6 +51,17 @@ export default class Container extends UIObject {
   }
 
   /**
+   * Determine if the playback is having to buffer in order for
+   * playback to be smooth.
+   * (i.e if a live stream is playing smoothly, this will be false)
+   * @property buffering
+   * @type Boolean
+   */
+  get buffering() {
+    return this.playback.buffering
+  }
+
+  /**
    * it builds a container
    * @method constructor
    * @param {Object} options the options object
@@ -100,7 +111,7 @@ export default class Container extends UIObject {
     this.listenTo(this.playback, Events.PLAYBACK_PROGRESS, this.progress)
     this.listenTo(this.playback, Events.PLAYBACK_TIMEUPDATE, this.timeUpdated)
     this.listenTo(this.playback, Events.PLAYBACK_READY, this.ready)
-    this.listenTo(this.playback, Events.PLAYBACK_BUFFERING, this.buffering)
+    this.listenTo(this.playback, Events.PLAYBACK_BUFFERING, this.onBuffering)
     this.listenTo(this.playback, Events.PLAYBACK_BUFFERFULL, this.bufferfull)
     this.listenTo(this.playback, Events.PLAYBACK_SETTINGSUPDATE, this.settingsUpdate)
     this.listenTo(this.playback, Events.PLAYBACK_LOADEDMETADATA, this.loadedMetadata)
@@ -110,7 +121,7 @@ export default class Container extends UIObject {
     this.listenTo(this.playback, Events.PLAYBACK_DVR, this.playbackDvrStateChanged)
     this.listenTo(this.playback, Events.PLAYBACK_MEDIACONTROL_DISABLE, this.disableMediaControl)
     this.listenTo(this.playback, Events.PLAYBACK_MEDIACONTROL_ENABLE, this.enableMediaControl)
-    this.listenTo(this.playback, Events.PLAYBACK_ENDED, this.ended)
+    this.listenTo(this.playback, Events.PLAYBACK_ENDED, this.onEnded)
     this.listenTo(this.playback, Events.PLAYBACK_PLAY, this.playing)
     this.listenTo(this.playback, Events.PLAYBACK_PAUSE, this.paused)
     this.listenTo(this.playback, Events.PLAYBACK_STOP, this.stopped)
@@ -186,6 +197,10 @@ export default class Container extends UIObject {
     return this.playback.isPlaying()
   }
 
+  getStartTimeOffset() {
+    return this.playback.getStartTimeOffset()
+  }
+
   getCurrentTime() {
     return this.currentTime
   }
@@ -247,7 +262,7 @@ export default class Container extends UIObject {
     this.playback.pause()
   }
 
-  ended() {
+  onEnded() {
     this.trigger(Events.CONTAINER_ENDED, this, this.name)
     this.currentTime = 0
   }
@@ -257,25 +272,31 @@ export default class Container extends UIObject {
   }
 
   clicked() {
-    this.trigger(Events.CONTAINER_CLICK, this, this.name)
+    if (!this.options.chromeless || this.options.allowUserInteraction) {
+      this.trigger(Events.CONTAINER_CLICK, this, this.name)
+    }
   }
 
   dblClicked() {
-    this.trigger(Events.CONTAINER_DBLCLICK, this, this.name)
+    if (!this.options.chromeless || this.options.allowUserInteraction) {
+      this.trigger(Events.CONTAINER_DBLCLICK, this, this.name)
+    }
   }
 
   onContextMenu() {
-    this.trigger(Events.CONTAINER_CONTEXTMENU, this, this.name)
+    if (!this.options.chromeless || this.options.allowUserInteraction) {
+      this.trigger(Events.CONTAINER_CONTEXTMENU, this, this.name)
+    }
   }
 
   seek(time) {
-    this.trigger(Events.CONTAINER_SEEK, time, this.name);
-    this.playback.seek(time);
+    this.trigger(Events.CONTAINER_SEEK, time, this.name)
+    this.playback.seek(time)
   }
 
   seekPercentage(percentage) {
     var duration = this.getDuration()
-    if (percentage > 0 && percentage <= 100) {
+    if (percentage >= 0 && percentage <= 100) {
       var time = duration * (percentage / 100)
       this.seek(time)
     }
@@ -291,7 +312,7 @@ export default class Container extends UIObject {
     this.trigger(Events.CONTAINER_FULLSCREEN, this.name)
   }
 
-  buffering() {
+  onBuffering() {
     this.trigger(Events.CONTAINER_STATE_BUFFERING, this.name)
   }
 
@@ -327,11 +348,15 @@ export default class Container extends UIObject {
   }
 
   mouseEnter() {
-    this.trigger(Events.CONTAINER_MOUSE_ENTER)
+    if (!this.options.chromeless || this.options.allowUserInteraction) {
+      this.trigger(Events.CONTAINER_MOUSE_ENTER)
+    }
   }
 
   mouseLeave() {
-    this.trigger(Events.CONTAINER_MOUSE_LEAVE)
+    if (!this.options.chromeless || this.options.allowUserInteraction) {
+      this.trigger(Events.CONTAINER_MOUSE_LEAVE)
+    }
   }
 
   settingsUpdate() {
@@ -348,13 +373,25 @@ export default class Container extends UIObject {
   }
 
   disableMediaControl() {
-    this.mediaControlDisabled = true
-    this.trigger(Events.CONTAINER_MEDIACONTROL_DISABLE)
+    if (!this.mediaControlDisabled) {
+      this.mediaControlDisabled = true
+      this.trigger(Events.CONTAINER_MEDIACONTROL_DISABLE)
+    }
   }
 
   enableMediaControl() {
-    this.mediaControlDisabled = false
-    this.trigger(Events.CONTAINER_MEDIACONTROL_ENABLE)
+    if (this.mediaControlDisabled) {
+      this.mediaControlDisabled = false
+      this.trigger(Events.CONTAINER_MEDIACONTROL_ENABLE)
+    }
+  }
+
+  updateStyle() {
+    if (!this.options.chromeless || this.options.allowUserInteraction) {
+      this.$el.removeClass('chromeless')
+    } else {
+      this.$el.addClass('chromeless')
+    }
   }
 
   /**
@@ -364,6 +401,7 @@ export default class Container extends UIObject {
    */
   configure(options) {
     this.options = $.extend(this.options, options)
+    this.updateStyle()
     this.trigger(Events.CONTAINER_OPTIONS_CHANGE)
   }
 
@@ -371,6 +409,7 @@ export default class Container extends UIObject {
     var s = Styler.getStyleFor(style)
     this.$el.append(s)
     this.$el.append(this.playback.render().el)
+    this.updateStyle()
     return this
   }
 }

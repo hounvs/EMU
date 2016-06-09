@@ -21,7 +21,13 @@ export default class FlasHLS extends BaseFlashPlayback {
   get swfPath() { return template(hlsSwf)({baseUrl: this.baseUrl}) }
 
   get levels() { return this._levels || [] }
-  get currentLevel() { return this._currentLevel || AUTO }
+  get currentLevel() {
+    if (this._currentLevel === null || this._currentLevel === undefined) {
+      return AUTO;
+    } else {
+      return this._currentLevel; //0 is a valid level ID
+    }
+  }
   set currentLevel(id) {
     this._currentLevel = id
     this.trigger(Events.PLAYBACK_LEVEL_SWITCH_START)
@@ -35,6 +41,16 @@ export default class FlasHLS extends BaseFlashPlayback {
    */
   get ended() {
     return this.hasEnded
+  }
+
+  /**
+   * Determine if the playback is buffering.
+   * This is related to the PLAYBACK_BUFFERING and PLAYBACK_BUFFERFULL events
+   * @property buffering
+   * @type Boolean
+   */
+  get buffering() {
+    return !!this.bufferingState && !this.hasEnded
   }
 
   constructor(options) {
@@ -104,7 +120,7 @@ export default class FlasHLS extends BaseFlashPlayback {
     Mediator.on(this.cid + ':levelchanged', (level) => this.levelChanged(level))
     Mediator.on(this.cid + ':error', (code, url, message) => this.flashPlaybackError(code, url, message))
     Mediator.on(this.cid + ':fragmentloaded',(loadmetrics) => this.onFragmentLoaded(loadmetrics))
-    Mediator.once(this.cid + ':manifestloaded', (duration, loadmetrics) => this.manifestLoaded(duration, loadmetrics))
+    Mediator.on(this.cid + ':levelendlist', (level) => this.onLevelEndlist(level))
   }
 
   stopListening() {
@@ -116,6 +132,7 @@ export default class FlasHLS extends BaseFlashPlayback {
     Mediator.off(this.cid + ':playbackerror')
     Mediator.off(this.cid + ':fragmentloaded')
     Mediator.off(this.cid + ':manifestloaded')
+    Mediator.off(this.cid + ':levelendlist')
   }
 
   bootstrap() {
@@ -127,8 +144,8 @@ export default class FlasHLS extends BaseFlashPlayback {
       this.currentState = "IDLE"
       this.setFlashSettings()
       this.updatePlaybackType()
-      if (this.autoPlay || this._shouldPlayOnBootstrap) {
-          this.play()
+      if (this.autoPlay || this._shouldPlayOnManifestLoaded) {
+        this.play()
       }
       this.trigger(Events.PLAYBACK_READY, this.name)
     } else {
@@ -361,10 +378,13 @@ export default class FlasHLS extends BaseFlashPlayback {
   }
 
   levelChanged(level) {
-    var currentLevel = this.levels[level]
+    var currentLevel = this.el.getLevels()[level]
     if (currentLevel) {
       this.highDefinition = (currentLevel.height >= 720 || (currentLevel.bitrate / 1000) >= 2000);
       this.trigger(Events.PLAYBACK_HIGHDEFINITIONUPDATE, this.highDefinition)
+
+      if (!this._levels || this._levels.length === 0) this.fillLevels()
+
       this.trigger(Events.PLAYBACK_BITRATE, {
         height: currentLevel.height,
         width: currentLevel.width,
@@ -443,10 +463,12 @@ export default class FlasHLS extends BaseFlashPlayback {
 
   setPlaybackState(state) {
     if (["PLAYING_BUFFERING", "PAUSED_BUFFERING"].indexOf(state) >= 0)  {
+      this.bufferingState = true
       this.trigger(Events.PLAYBACK_BUFFERING, this.name)
       this.updateCurrentState(state)
     } else if (["PLAYING", "PAUSED"].indexOf(state) >= 0) {
       if (["PLAYING_BUFFERING", "PAUSED_BUFFERING", "IDLE"].indexOf(this.currentState) >= 0) {
+        this.bufferingState = false
         this.trigger(Events.PLAYBACK_BUFFERFULL, this.name)
       }
       this.updateCurrentState(state)
@@ -458,7 +480,7 @@ export default class FlasHLS extends BaseFlashPlayback {
       } else {
         this.updateCurrentState(state)
         this.hasEnded = true
-        this.trigger(Events.PLAYBACK_TIMEUPDATE, {current: 0, total: this.el.getDuration()}, this.name)
+        this.trigger(Events.PLAYBACK_TIMEUPDATE, {current: 0, total: this.getDuration()}, this.name)
         this.trigger(Events.PLAYBACK_ENDED, this.name)
       }
     }
@@ -512,14 +534,17 @@ export default class FlasHLS extends BaseFlashPlayback {
     }
   }
 
+  onLevelEndlist(level) {
+    this.updatePlaybackType()
+  }
+
   firstPlay() {
+    this._shouldPlayOnManifestLoaded = true
     if (this.el.playerLoad) {
+      Mediator.once(this.cid + ':manifestloaded', (duration, loadmetrics) => this.manifestLoaded(duration, loadmetrics))
       this.setFlashSettings() //ensure flushLiveURLCache will work (#327)
       this.el.playerLoad(this.src)
-      Mediator.once(this.cid + ':manifestloaded',() => this.el.playerPlay())
       this.srcLoaded = true
-    } else {
-      this._shouldPlayOnBootstrap = true
     }
   }
 
@@ -565,7 +590,7 @@ export default class FlasHLS extends BaseFlashPlayback {
   normalizeDuration(duration) {
     if (this.playbackType === Playback.LIVE) {
       // estimate 10 seconds of buffer time for live streams for seek positions
-      duration = duration - 10
+      duration = Math.max(0, duration - 10)
     }
     return duration
   }
@@ -580,13 +605,10 @@ export default class FlasHLS extends BaseFlashPlayback {
   }
 
   seek(time) {
-    var duration = this.el.getDuration()
+    var duration = this.getDuration()
     if (this.playbackType === Playback.LIVE) {
-      // seek operations to a time within 5 seconds from live stream will position playhead back to live
-      var dvrInUse = (time >= 0 && duration - time > 5)
-      if (!dvrInUse) {
-        time = -1
-      }
+      // seek operations to a time within 3 seconds from live stream will position playhead back to live
+      var dvrInUse = duration - time > 3
       this.updateDvr(dvrInUse)
     }
     this.el.playerSeek(time)
@@ -609,19 +631,28 @@ export default class FlasHLS extends BaseFlashPlayback {
   }
 
   manifestLoaded(duration, loadmetrics) {
+    if (this._shouldPlayOnManifestLoaded) {
+      this._shouldPlayOnManifestLoaded = false
+      // this method initialises the player (and starts playback)
+      // this needs to happen before PLAYBACK_LOADEDMETADATA is fired
+      // as the user may call seek() in a LOADEDMETADATA listener.
+      /// when playerPlay() is called the player seeks to 0
+      this.el.playerPlay()
+    }
+
+    this.fillLevels()
+    this.trigger(Events.PLAYBACK_LOADEDMETADATA, {duration: duration, data: loadmetrics})
+  }
+
+  fillLevels() {
     var levels = this.el.getLevels()
     var levelsLength = levels.length
     this._levels = []
 
     for (var index = 0 ; index < levelsLength ; index++) {
-      this._levels.push({id: index, label: `${levels[index].height}p`})
+      this._levels.push({id: index, label: `${levels[index].height}p`, level: levels[index]})
     }
     this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this._levels)
-    this.trigger(Events.PLAYBACK_LOADEDMETADATA, {duration: duration, data: loadmetrics})
-  }
-
-  timeUpdate(time, duration) {
-    this.trigger(Events.PLAYBACK_TIMEUPDATE, {current: time, total: duration}, this.name)
   }
 
   destroy() {

@@ -29,7 +29,7 @@ import coreStyle from './public/style.scss'
 export default class Core extends UIObject {
   get events() {
     return {
-      'webkitfullscreenchange': 'exit',
+      'webkitfullscreenchange': 'handleFullscreenChange',
       'mousemove': 'showMediaControl',
       'mouseleave': 'hideMediaControl'
     }
@@ -59,9 +59,10 @@ export default class Core extends UIObject {
     this.containers = []
     this.setupMediaControl(null)
     //FIXME fullscreen api sucks
-    $(document).bind('fullscreenchange', () => this.exit())
-    $(document).bind('MSFullscreenChange', () => this.exit())
-    $(document).bind('mozfullscreenchange', () => this.exit())
+    this._boundFullscreenHandler = () => this.handleFullscreenChange()
+    $(document).bind('fullscreenchange', this._boundFullscreenHandler)
+    $(document).bind('MSFullscreenChange', this._boundFullscreenHandler)
+    $(document).bind('mozfullscreenchange', this._boundFullscreenHandler)
   }
 
   createContainers(options) {
@@ -116,7 +117,6 @@ export default class Core extends UIObject {
 
   enableResizeObserver() {
     var checkSizeCallback = () => {
-      if (this.resizeObserverInterval) clearInterval(this.resizeObserverInterval)
       if (this.playerInfo.computedSize.width != this.el.clientWidth ||
           this.playerInfo.computedSize.height != this.el.clientHeight) {
         this.playerInfo.computedSize = { width: this.el.clientWidth, height: this.el.clientHeight }
@@ -167,12 +167,13 @@ export default class Core extends UIObject {
     this.plugins.forEach((plugin) => plugin.destroy())
     this.$el.remove()
     this.mediaControl.destroy()
-    $(document).unbind('fullscreenchange')
-    $(document).unbind('MSFullscreenChange')
-    $(document).unbind('mozfullscreenchange')
+    $(document).unbind('fullscreenchange', this._boundFullscreenHandler)
+    $(document).unbind('MSFullscreenChange', this._boundFullscreenHandler)
+    $(document).unbind('mozfullscreenchange', this._boundFullscreenHandler)
   }
 
-  exit() {
+  handleFullscreenChange() {
+    this.trigger(Events.CORE_FULLSCREEN, Fullscreen.isFullscreen())
     this.updateSize()
     this.mediaControl.show()
   }
@@ -235,7 +236,7 @@ export default class Core extends UIObject {
 
   createMediaControl(options) {
     if(options.mediacontrol && options.mediacontrol.external) {
-      return new options.mediacontrol.external(options);
+      return new options.mediacontrol.external(options).render();
     } else {
       return new MediaControl(options).render();
     }
@@ -300,7 +301,7 @@ export default class Core extends UIObject {
     var sources = options.source || options.sources
 
     if (sources) {
-      this.load(sources)
+      this.load(sources, options.mimeType || this.options.mimeType)
     } else {
       this.trigger(Events.CORE_OPTIONS_CHANGE)
 
@@ -311,7 +312,7 @@ export default class Core extends UIObject {
   }
 
   render() {
-    var style = Styler.getStyleFor(coreStyle);
+    var style = Styler.getStyleFor(coreStyle, {baseUrl: this.options.baseUrl});
     this.$el.append(style)
     this.$el.append(this.mediaControl.render().el)
 
